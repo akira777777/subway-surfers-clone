@@ -28,6 +28,7 @@ n    // Keyboard input handler for lane switching and jumping
     const onKeyDown = (e: KeyboardEvent) => { e.preventDefault(); };
     const onKeyUp = (e: KeyboardEvent) => { const index = keyDown.indexOf(e.key); if (index > -1) keyDown.splice(index, 1); };
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     mountRef.current.appendChild(renderer.domElement);
