@@ -30,6 +30,9 @@ n    // Keyboard input handler for lane switching and jumping
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     // Renderer
+n    // Cleanup on unmount
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("keyup", onKeyUp);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     mountRef.current.appendChild(renderer.domElement);
 
