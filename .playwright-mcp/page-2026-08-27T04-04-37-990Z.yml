@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - generic [ref=e170]:
+    - button "▲" [ref=e171] [cursor=pointer]
+    - generic [ref=e172]:
+      - button "◀" [ref=e173] [cursor=pointer]
+      - button "▶" [ref=e174] [cursor=pointer]
+    - button "▼" [ref=e175] [cursor=pointer]
+  - generic:
+    - generic [ref=e176]:
+      - generic [ref=e177]:
+        - generic [ref=e178]: 1X
+        - generic [ref=e179]: "5"
+      - generic [ref=e180]:
+        - generic [ref=e181]: 🪙
+        - generic [ref=e182]: "0"
+      - generic [ref=e183]:
+        - generic [ref=e184]: 🏃
+        - generic [ref=e185]: 10m
+      - button "⏸" [ref=e186] [cursor=pointer]
+    - button "🛹 BOARDS" [ref=e187] [cursor=pointer]

@@ -1,0 +1,46 @@
+- generic [ref=e8]:
+  - generic [ref=e9]:
+    - heading "SUBWAY RUNNER 3D" [level=1] [ref=e10]: SUBWAYRUNNER 3D
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: HIGH SCORE
+        - generic [ref=e14]: "0"
+      - generic [ref=e15]:
+        - generic [ref=e16]: TOTAL COINS
+        - generic [ref=e17]: 🪙 0
+    - generic [ref=e18]:
+      - button "▶ PLAY NOW" [ref=e19] [cursor=pointer]
+      - button "🛍️ SHOP & UPGRADES" [ref=e20] [cursor=pointer]
+      - button "🎮 HOW TO PLAY" [active] [ref=e21] [cursor=pointer]
+    - button "🔊 SOUND ON" [ref=e23] [cursor=pointer]
+  - generic [ref=e25]:
+    - heading "🎮 CONTROLS & POWER-UPS" [level=2] [ref=e26]
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: A / D
+        - text: or
+        - generic [ref=e30]: ← / →
+        - generic [ref=e31]: Switch Lanes (Left / Right)
+      - generic [ref=e32]:
+        - generic [ref=e33]: W
+        - text: or
+        - generic [ref=e34]: ↑
+        - generic [ref=e35]: Jump over low barriers & trains
+      - generic [ref=e36]:
+        - generic [ref=e37]: S
+        - text: or
+        - generic [ref=e38]: ↓
+        - generic [ref=e39]: Roll / Duck under high barriers
+      - generic [ref=e40]:
+        - generic [ref=e41]: SPACE
+        - generic [ref=e42]: Activate Hoverboard Shield!
+      - generic [ref=e43]:
+        - generic [ref=e44]: SWIPE
+        - generic [ref=e45]: Touchscreen gestures on mobile
+    - generic [ref=e46]:
+      - heading "POWER-UPS:" [level=3] [ref=e47]
+      - paragraph [ref=e48]: 🧲 MAGNET - Attracts all nearby gold coins
+      - paragraph [ref=e49]: 🚀 JETPACK - Fly high above tracks collecting coin streams
+      - paragraph [ref=e50]: ✨ 2X MULTIPLIER - Doubles score multiplier
+      - paragraph [ref=e51]: 🛹 HOVERBOARD - Protects from 1 crash
+    - button "GOT IT!" [ref=e52] [cursor=pointer]
