@@ -46,6 +46,7 @@ export interface ObstacleData {
   type: ObstacleType;
   lane: LaneIndex;
   z: number;
+  depth?: number;
   speedZ?: number; // for moving trains
   duckable?: boolean;
   jumpable?: boolean;

@@ -25,12 +25,12 @@ export function Obstacles({ obstacles }: ObstaclesProps) {
                 <meshStandardMaterial color="#1e293b" metalness={0.8} />
               </mesh>
               {/* Headlights */}
-              <mesh position={[-0.9, 1.2, 7.05]}>
-                <cylinderGeometry args={[0.2, 0.2, 0.1, 16]} rotation={[Math.PI / 2, 0, 0]} />
+              <mesh position={[-0.9, 1.2, 7.05]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.2, 0.2, 0.1, 16]} />
                 <meshStandardMaterial color="#fef08a" emissive="#fef08a" emissiveIntensity={2} />
               </mesh>
-              <mesh position={[0.9, 1.2, 7.05]}>
-                <cylinderGeometry args={[0.2, 0.2, 0.1, 16]} rotation={[Math.PI / 2, 0, 0]} />
+              <mesh position={[0.9, 1.2, 7.05]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.2, 0.2, 0.1, 16]} />
                 <meshStandardMaterial color="#fef08a" emissive="#fef08a" emissiveIntensity={2} />
               </mesh>
               {/* Windows */}
@@ -61,12 +61,12 @@ export function Obstacles({ obstacles }: ObstaclesProps) {
                 <meshStandardMaterial color="#eab308" metalness={0.5} />
               </mesh>
               {/* Headlights */}
-              <mesh position={[-0.9, 1.5, 8.02]}>
-                <cylinderGeometry args={[0.25, 0.25, 0.1, 16]} rotation={[Math.PI / 2, 0, 0]} />
+              <mesh position={[-0.9, 1.5, 8.02]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.25, 0.25, 0.1, 16]} />
                 <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={2} />
               </mesh>
-              <mesh position={[0.9, 1.5, 8.02]}>
-                <cylinderGeometry args={[0.25, 0.25, 0.1, 16]} rotation={[Math.PI / 2, 0, 0]} />
+              <mesh position={[0.9, 1.5, 8.02]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.25, 0.25, 0.1, 16]} />
                 <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={2} />
               </mesh>
             </group>
