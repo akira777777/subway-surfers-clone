@@ -1,0 +1,18 @@
+- main [ref=e3]:
+  - region "Midnight Line endless runner" [ref=e4]:
+    - generic:
+      - generic [ref=e6]:
+        - generic [ref=e7]: ML
+        - generic [ref=e8]: MIDNIGHTLINE
+      - generic [ref=e9]:
+        - generic [ref=e10]: SCORE
+        - strong [ref=e11]: "724"
+      - generic "0 coins collected" [ref=e12]:
+        - text: ◉
+        - generic [ref=e13]: "0"
+      - button "Mute sound" [ref=e14] [cursor=pointer]: 🔊
+      - button "Pause game" [ref=e26] [cursor=pointer]: Ⅱ
+    - generic:
+      - generic: LAST SERVICE
+      - generic: METRO 07
+      - generic: ∞

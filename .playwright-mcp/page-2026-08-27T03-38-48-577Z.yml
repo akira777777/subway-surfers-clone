@@ -1,0 +1,30 @@
+- main [ref=f2e3]:
+  - region "Midnight Line endless runner" [ref=f2e4]:
+    - generic:
+      - generic [ref=f2e6]:
+        - generic [ref=f2e7]: ML
+        - generic [ref=f2e8]: MIDNIGHTLINE
+      - generic [ref=f2e9]:
+        - generic [ref=f2e10]: SCORE
+        - strong [ref=f2e11]: "0"
+      - generic "0 coins collected" [ref=f2e12]:
+        - text: ◉
+        - generic [ref=f2e13]: "0"
+      - button "Mute sound" [ref=f2e14] [cursor=pointer]: 🔊
+    - generic [ref=f2e15]:
+      - paragraph [ref=f2e16]: ENDLESS NIGHT RUN · 01
+      - heading [level=1] [ref=f2e17]:
+        - text: MAKE THE
+        - emphasis [ref=f2e18]: LAST TRAIN.
+      - paragraph [ref=f2e19]: Run the closing line. Dodge the crates (jump), slide under the signal bars (down/slide), and collect coins.
+      - button "START THE RUN →" [ref=f2e20] [cursor=pointer]:
+        - text: START THE RUN
+        - generic [ref=f2e21]: →
+      - generic [ref=f2e22]:
+        - generic [ref=f2e23]: "← / → or A / D: change track"
+        - generic [ref=f2e24]: "↑ or W / Space: jump"
+        - generic [ref=f2e25]: "↓ or S: slide"
+    - generic:
+      - generic: LAST SERVICE
+      - generic: METRO 07
+      - generic: ∞

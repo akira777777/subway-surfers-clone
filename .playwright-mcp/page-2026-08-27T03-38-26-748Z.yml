@@ -1,0 +1,26 @@
+- main [ref=e3]:
+  - region "Midnight Line endless runner" [ref=e4]:
+    - generic:
+      - generic [ref=e6]:
+        - generic [ref=e7]: ML
+        - generic [ref=e8]: MIDNIGHTLINE
+      - generic [ref=e9]:
+        - generic [ref=e10]: SCORE
+        - strong [ref=e11]: 14,556
+      - generic "3 coins collected" [ref=e27]:
+        - text: ◉
+        - generic [ref=e13]: "3"
+      - button "Mute sound" [ref=e14] [cursor=pointer]: 🔊
+    - generic [ref=e28]:
+      - paragraph [ref=e29]: END OF THE LINE
+      - heading [level=1] [ref=e30]:
+        - text: 14,556
+        - emphasis [ref=e31]: POINTS.
+      - paragraph [ref=e32]: New route, new chance. Your best ride is 14,556.
+      - button "RUN AGAIN →" [ref=e33] [cursor=pointer]:
+        - text: RUN AGAIN
+        - generic [ref=e34]: →
+    - generic:
+      - generic: LAST SERVICE
+      - generic: METRO 07
+      - generic: ∞
