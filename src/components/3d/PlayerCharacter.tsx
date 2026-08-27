@@ -153,7 +153,7 @@ export function PlayerCharacter({ playerState, skinId, boardId }: PlayerCharacte
 
         {/* Jetpack Model if Jetpack active */}
         {playerState.activePowerups.jetpack > 0 && (
-          <group position={[0, 1.1, -0.3]}>
+          <group position={[0, 1.1, 0.35]}>
             <mesh castShadow>
               <boxGeometry args={[0.6, 0.7, 0.25]} />
               <meshStandardMaterial color="#475569" metalness={0.8} roughness={0.2} />

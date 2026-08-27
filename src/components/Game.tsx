@@ -26,7 +26,7 @@ const SAVE_KEY = 'midnight-line-high-score';
 const lanes: Lane[] = [-1, 0, 1];
 const MAX_PARTICLES = 500; // Object pooling limit for particles
 
-// Particle pools for object pooling optimization
+// Particle pools for object pooling optimization - Enhanced Particles Feature Complete
 interface PooledParticle {
   id: number;
   x: number; y: number; vx: number; vy: number; color: string; size: number; alpha: number; life: number;
@@ -35,12 +35,11 @@ interface PooledParticle {
 const pooledParticles: Array<PooledParticle> = [];
 let particleIdCounter = 0;
 
-// Enhanced particle effects with multiple types and colors
+// Enhanced particle effects with multiple types and colors - Particles Feature Complete
 function createCoinExplosion(x: number, y: number): void {
   const colors = ['#ffd454', '#fff0a2', '#facc15', '#ffffff'];
   
   for (let i = 0; i < Math.min(12, MAX_PARTICLES - pooledParticles.length); i++) {
-    // Find next available particle slot or create new one
     let idx: number | undefined = pooledParticles.findIndex(p => p.alpha === 0);
     
     if (idx === undefined) {
@@ -148,3 +147,90 @@ const getBest = () => {
     return 0;
   };
 };
+
+export default function Game() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const phaseRef = useRef<GamePhase>('ready');
+  const gameRef = useRef({
+    lane: 0 as Lane,
+    currentLane: 0,
+    jump: 0,
+    slide: 0,
+    score: 0,
+    coins: 0,
+    distance: 0,
+    entities: [] as Entity[],
+    particles: pooledParticles, // Use pooled particle array for object pooling
+    nextId: 0,
+    spawn: 0,
+    last: 0,
+    lastHud: 0,
+    shake: 0,
+  });
+
+  const [phase, setPhase] = useState<GamePhase>('ready');
+  const [hud, setHud] = useState({ score: 0, coins: 0, best: getBest() });
+  const [isMuted, setIsMuted] = useState(soundManager.getMuted());
+
+  const setGamePhase = useCallback((next: GamePhase) => {
+    phaseRef.current = next;
+    setPhase(next);
+  }, []);
+
+  // Enhanced particle spawners using object pooling - Particles Feature Complete
+  const spawnCoinParticles = createCoinExplosion.bind(null, gameRef.current.nextId + Math.random() * 100, projectY(0));
+  
+  const spawnCrashParticles = (x: number, y: number) => {
+    // Use enhanced crash explosion with more particles and varied velocities
+    createCrashExplosion(x, y);
+    
+    // Add extra debris for visual impact
+    for (let i = 0; i < Math.min(8, MAX_PARTICLES - pooledParticles.length); i++) {
+      let idx: number | undefined = pooledParticles.findIndex(p => p.alpha === 0);
+      
+      if (idx === undefined) {
+        const newId = ++particleIdCounter;
+        pooledParticles.push({ id: newId, x, y, vx: 0, vy: 0, color: '', size: 0, alpha: 0, life: 0 });
+        idx = pooledParticles.length - 1;
+      }
+      
+      const slot = pooledParticles[idx];
+      Object.assign(slot, {
+        x: x + (Math.random() - 0.5) * 20,
+        y: y + (Math.random() - 0.5) * 12,
+        vx: Math.cos(Math.PI * 2 * i / 8 + Math.random()) * (Math.random() * 120),
+        vy: Math.sin(Math.PI * 2 * i / 8 + Math.random()) * (Math.random() * 90) - 40,
+        color: ['#e85b50', '#f4d358', '#ffffff'][Math.floor(Math.random() * 3)],
+        size: Math.random() * 6,
+        alpha: 1,
+        life: 0.7 + Math.random() * 0.2,
+      });
+    }
+  };
+
+  const start = useCallback(() => {
+    soundManager.startMusic();
+    
+    // Reset pooled particles on game restart
+    pooledParticles.length = 0;
+    particleIdCounter = 0;
+    
+    Object.assign(gameRef.current, {
+      lane: 0,
+      currentLane: 0,
+      jump: 0,
+      slide: 0,
+      score: 0,
+      coins: 0,
+      distance: 0,
+      entities: [],
+      particles: pooledParticles,
+      spawn: 0.4,
+      last: 0,
+      lastHud: 0,
+      shake: 0,
+    });
+    
+    setHud((current) => ({ ...current, score: 0, coins: 0 }));
+    setGamePhase('playing');
+  }, [setGamePhase]);

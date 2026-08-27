@@ -9,10 +9,10 @@ export function SubwayEnvironment({ distance }: SubwayEnvironmentProps) {
   // Generate repeating track segment positions
   const segmentLength = 40;
   const numSegments = 8;
-  const offset = -(distance % segmentLength);
+  const offset = (distance % segmentLength);
 
   const segments = useMemo(() => {
-    return Array.from({ length: numSegments }, (_, i) => i * segmentLength - 20);
+    return Array.from({ length: numSegments }, (_, i) => -i * segmentLength + 20);
   }, [numSegments, segmentLength]);
 
   return (
