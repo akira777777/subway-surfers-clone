@@ -90,3 +90,11 @@
     // Spawn initial obstacles and collectibles
     for (let i = 0; i < 3; i++) createObstacle();
     for (let i = 0; i < 2; i++) createCollectible();
+
+    // Keyboard event listeners for input handling
+    const onKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      if (!currentLane || gameState !== "playing") return;
+      
+      switch(e.key.toLowerCase()) {
+        case 
