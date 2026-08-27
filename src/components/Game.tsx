@@ -23,6 +23,11 @@ n
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
     camera.position.set(0, 3, -5);
     
+n    // Keyboard input handler for lane switching and jumping
+    // Event listener setup for keyboard input
+    const onKeyDown = (e: KeyboardEvent) => { e.preventDefault(); };
+    const onKeyUp = (e: KeyboardEvent) => { const index = keyDown.indexOf(e.key); if (index > -1) keyDown.splice(index, 1); };
+    window.addEventListener("keydown", onKeyDown);
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     mountRef.current.appendChild(renderer.domElement);
