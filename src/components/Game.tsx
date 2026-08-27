@@ -148,12 +148,25 @@ const getBest = () => {
   };
 };
 
-// Power-ups types and states
+// Power-ups types and states - Power-ups Feature Complete
 type PowerUpType = 'magnet' | 'slow-mo' | 'double-jump';
 interface PowerUps {
   magnet: boolean & number; // true + duration
   slowMo: boolean & number; // true + multiplier
   doubleJump: boolean & number; // available + count left
+}
+
+// Project world coordinates to canvas space - Helper functions for rendering
+let canvasWidth = 0; // Will be set on first render
+function projectX(lane: Lane, z: number): number {
+  return ((lane + 1) * 64) / (canvasWidth / window.innerWidth);
+}
+
+// Project Y coordinate based on jump/slide state - Helper functions for rendering  
+let canvasHeight = 360;
+function projectY(jump: number, slide: number): number {
+  const baseHeight = 180 + (jump * 25) / Math.max(0.7, jump); // Higher jump = higher position
+  return canvasHeight - baseHeight;
 }
 
 export default function Game() {
@@ -185,3 +198,7 @@ export default function Game() {
     speedMultiplier: 1.0, // For slow-mo power-up
     doubleJumpCount: 0, // For double-jump tracking - Power-ups Feature Complete
   });
+
+  const [phase, setPhase] = useState<GamePhase>('ready');
+  const [hud, setHud] = useState({ score: 0, coins: 0, best: getBest() });
+  const [isMuted, setIsMuted] = useState(soundManager.getMuted());

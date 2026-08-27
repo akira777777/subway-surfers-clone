@@ -1,0 +1,14 @@
+- generic [ref=e9]:
+  - heading "SUBWAY RUNNER 3D" [level=1] [ref=e10]: SUBWAYRUNNER 3D
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]: HIGH SCORE
+      - generic [ref=e14]: "396"
+    - generic [ref=e15]:
+      - generic [ref=e16]: TOTAL COINS
+      - generic [ref=e17]: 🪙 16
+  - generic [ref=e18]:
+    - button "▶ PLAY NOW" [ref=e19] [cursor=pointer]
+    - button "🛍️ SHOP & UPGRADES" [ref=e20] [cursor=pointer]
+    - button "🎮 HOW TO PLAY" [ref=e21] [cursor=pointer]
+  - button "🔊 SOUND ON" [ref=e23] [cursor=pointer]

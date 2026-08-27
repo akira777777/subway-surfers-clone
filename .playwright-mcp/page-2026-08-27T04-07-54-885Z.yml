@@ -1,0 +1,36 @@
+- generic [ref=e64]:
+  - generic [ref=e65]:
+    - heading "🛍️ SURFER SHOP" [level=2] [ref=e66]
+    - generic [ref=e67]:
+      - generic [ref=e68]: 🪙
+      - generic [ref=e69]: "22"
+  - generic [ref=e70]:
+    - button "🧢 SKINS" [ref=e71] [cursor=pointer]
+    - button "🛹 BOARDS" [ref=e72] [cursor=pointer]
+    - button "⚡ UPGRADES" [ref=e73] [cursor=pointer]
+  - generic [ref=e74]:
+    - generic [ref=e75]:
+      - generic [ref=e76]: 🧢
+      - generic [ref=e78]:
+        - heading "Jake Classic" [level=4] [ref=e79]
+        - paragraph [ref=e80]: The iconic subway runner hero in classic blue & red.
+      - button "EQUIPPED" [disabled] [ref=e82]
+    - generic [ref=e83]:
+      - generic [ref=e84]: 🎀
+      - generic [ref=e86]:
+        - heading "Tricky Pink" [level=4] [ref=e87]
+        - paragraph [ref=e88]: Bold pink style with purple running shoes.
+      - button "🪙 200" [disabled] [ref=e90] [cursor=pointer]
+    - generic [ref=e91]:
+      - generic [ref=e92]: 🕶️
+      - generic [ref=e94]:
+        - heading "Fresh Retro" [level=4] [ref=e95]
+        - paragraph [ref=e96]: 80s retro neon green jacket & yellow visor.
+      - button "🪙 500" [disabled] [ref=e98] [cursor=pointer]
+    - generic [ref=e99]:
+      - generic [ref=e100]: 🤖
+      - generic [ref=e102]:
+        - heading "Cyber Runner" [level=4] [ref=e103]
+        - paragraph [ref=e104]: Futuristic metallic armor with glowing cyan energy.
+      - button "🪙 1000" [disabled] [ref=e106] [cursor=pointer]
+  - button "BACK TO MENU" [ref=e107] [cursor=pointer]

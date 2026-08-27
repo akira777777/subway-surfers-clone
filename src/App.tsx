@@ -50,7 +50,7 @@ export default function App() {
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
 
-  // Gameplay Live State
+  // Gameplay Live State for React rendering
   const [playerState, setPlayerState] = useState<PlayerState>({
     ...INITIAL_PLAYER_STATE,
     skin: stats.selectedSkin,
@@ -60,53 +60,36 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [distance, setDistance] = useState(0);
-  const [speed, setSpeed] = useState(BASE_SPEED);
   const [obstacles, setObstacles] = useState<ObstacleData[]>([]);
   const [collectibles, setCollectibles] = useState<CollectibleData[]>([]);
   const [particles, setParticles] = useState<ParticleData[]>([]);
   const [shakeIntensity, setShakeIntensity] = useState(0);
 
-  // Refs for animation loop
+  // Refs for 60FPS physics game loop (eliminates stale closures and render lag)
   const animFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
   const obstacleIdCounter = useRef(0);
   const collectibleIdCounter = useRef(0);
   const particleIdCounter = useRef(0);
-  const nextSpawnZ = useRef<number>(-50);
 
-  // Keep player state ref in sync for loop
   const playerRef = useRef(playerState);
-  playerRef.current = playerState;
+  const obstaclesRef = useRef<ObstacleData[]>([]);
+  const collectiblesRef = useRef<CollectibleData[]>([]);
+  const particlesRef = useRef<ParticleData[]>([]);
+  const speedRef = useRef(BASE_SPEED);
+  const distanceRef = useRef(0);
+  const coinsRef = useRef(0);
+  const scoreRef = useRef(0);
+  const shakeRef = useRef(0);
+  const gameStatusRef = useRef<GameStatus>('menu');
+  const statsRef = useRef<GameStats>(stats);
 
-  const obstaclesRef = useRef(obstacles);
-  obstaclesRef.current = obstacles;
-
-  const collectiblesRef = useRef(collectibles);
-  collectiblesRef.current = collectibles;
-
-  const particlesRef = useRef(particles);
-  particlesRef.current = particles;
-
-  const speedRef = useRef(speed);
-  speedRef.current = speed;
-
-  const distanceRef = useRef(distance);
-  distanceRef.current = distance;
-
-  const coinsRef = useRef(coinsEarned);
-  coinsRef.current = coinsEarned;
-
-  const scoreRef = useRef(score);
-  scoreRef.current = score;
-
-  const gameStatusRef = useRef(gameStatus);
+  // Keep refs synced
   gameStatusRef.current = gameStatus;
-
-  const statsRef = useRef(stats);
   statsRef.current = stats;
 
   // Particle Spawner Helper
-  const spawnSparkles = useCallback((x: number, y: number, z: number, color = '#fef08a', count = 5) => {
+  const spawnSparkles = useCallback((x: number, y: number, z: number, color = '#fef08a', count = 6) => {
     const newParticles: ParticleData[] = [];
     for (let i = 0; i < count; i++) {
       newParticles.push({
@@ -114,24 +97,23 @@ export default function App() {
         x,
         y,
         z,
-        vx: (Math.random() - 0.5) * 6,
-        vy: Math.random() * 6 + 2,
-        vz: (Math.random() - 0.5) * 6,
+        vx: (Math.random() - 0.5) * 8,
+        vy: Math.random() * 7 + 2,
+        vz: (Math.random() - 0.5) * 8,
         color,
-        life: 0.4,
-        maxLife: 0.4,
-        size: Math.random() * 0.15 + 0.08,
+        life: 0.45,
+        maxLife: 0.45,
+        size: Math.random() * 0.18 + 0.09,
       });
     }
-    setParticles((prev) => [...prev, ...newParticles]);
+    particlesRef.current = [...particlesRef.current, ...newParticles];
   }, []);
 
-  // Helper to spawn obstacles and coin streams ahead
-  const generateSegment = useCallback((targetZ: number) => {
+  // Helper to spawn obstacles and coin streams ahead in local coordinate space
+  const spawnSegmentAtZ = useCallback((targetZ: number) => {
     const lanes: LaneIndex[] = [-1, 0, 1];
     const obsTypes: ObstacleType[] = ['barrier_low', 'barrier_high', 'train_low', 'train_tall'];
 
-    // Select 1 or 2 obstacle lanes
     const primaryLane = lanes[Math.floor(Math.random() * lanes.length)];
     const primaryType = obsTypes[Math.floor(Math.random() * obsTypes.length)];
 
@@ -145,8 +127,8 @@ export default function App() {
       },
     ];
 
-    // Optionally add a second obstacle in a different lane
-    if (Math.random() > 0.4) {
+    // 50% chance to add a secondary hurdle in another lane
+    if (Math.random() > 0.5) {
       const otherLanes = lanes.filter((l) => l !== primaryLane);
       const secondLane = otherLanes[Math.floor(Math.random() * otherLanes.length)];
       const secondType: ObstacleType = Math.random() > 0.5 ? 'barrier_low' : 'barrier_high';
@@ -167,7 +149,7 @@ export default function App() {
     const coinY = isTrainCoin ? 3.8 : 1.2;
 
     const newCols: CollectibleData[] = [];
-    const numCoins = Math.floor(Math.random() * 5) + 4;
+    const numCoins = Math.floor(Math.random() * 4) + 4;
 
     for (let c = 0; c < numCoins; c++) {
       newCols.push({
@@ -179,8 +161,8 @@ export default function App() {
       });
     }
 
-    // 18% chance to spawn a Power-Up ahead
-    if (Math.random() < 0.18) {
+    // 22% chance to spawn a Power-Up ahead
+    if (Math.random() < 0.22) {
       const pTypes: ('magnet' | 'multiplier' | 'jetpack' | 'hoverboard')[] = [
         'magnet',
         'multiplier',
@@ -194,109 +176,126 @@ export default function App() {
         id: `col_${collectibleIdCounter.current++}`,
         type: selectedPType,
         lane: pLane,
-        z: targetZ + (numCoins + 2) * 3.5,
+        z: targetZ + (numCoins + 1) * 3.5,
         y: 1.5,
       });
     }
 
-    setObstacles((prev) => [...prev, ...newObs]);
-    setCollectibles((prev) => [...prev, ...newCols]);
+    obstaclesRef.current = [...obstaclesRef.current, ...newObs];
+    collectiblesRef.current = [...collectiblesRef.current, ...newCols];
   }, []);
 
   // Controls Handlers
   const handleMoveLeft = useCallback(() => {
     if (gameStatusRef.current !== 'playing') return;
-    setPlayerState((prev) => ({
-      ...prev,
-      lane: Math.max(-1, prev.lane - 1) as LaneIndex,
-    }));
+    playerRef.current = {
+      ...playerRef.current,
+      lane: Math.max(-1, playerRef.current.lane - 1) as LaneIndex,
+    };
+    setPlayerState(playerRef.current);
   }, []);
 
   const handleMoveRight = useCallback(() => {
     if (gameStatusRef.current !== 'playing') return;
-    setPlayerState((prev) => ({
-      ...prev,
-      lane: Math.min(1, prev.lane + 1) as LaneIndex,
-    }));
+    playerRef.current = {
+      ...playerRef.current,
+      lane: Math.min(1, playerRef.current.lane + 1) as LaneIndex,
+    };
+    setPlayerState(playerRef.current);
   }, []);
 
   const handleJump = useCallback(() => {
     if (gameStatusRef.current !== 'playing') return;
-    setPlayerState((prev) => {
-      // Allow jump if on ground or on train roof
-      if (prev.y <= 0.1 || (prev.y >= 2.8 && prev.y <= 3.2)) {
-        soundManager.playJump();
-        return {
-          ...prev,
-          velocityY: JUMP_IMPULSE,
-          isJumping: true,
-          isRolling: false,
-        };
-      }
-      return prev;
-    });
+    const cur = playerRef.current;
+    if (cur.y <= 0.1 || (cur.y >= 2.8 && cur.y <= 3.2)) {
+      soundManager.playJump();
+      playerRef.current = {
+        ...cur,
+        velocityY: JUMP_IMPULSE,
+        isJumping: true,
+        isRolling: false,
+      };
+      setPlayerState(playerRef.current);
+    }
   }, []);
 
   const handleRoll = useCallback(() => {
     if (gameStatusRef.current !== 'playing') return;
     soundManager.playRoll();
-    setPlayerState((prev) => ({
-      ...prev,
+    const cur = playerRef.current;
+    playerRef.current = {
+      ...cur,
       isRolling: true,
       rollTimer: ROLL_DURATION,
-      // Fast fall impulse if airborne
-      velocityY: prev.y > 0.2 ? -JUMP_IMPULSE * 1.2 : prev.velocityY,
-    }));
+      velocityY: cur.y > 0.2 ? -JUMP_IMPULSE * 1.3 : cur.velocityY,
+    };
+    setPlayerState(playerRef.current);
   }, []);
 
   const handleActivateHoverboard = useCallback(() => {
     if (gameStatusRef.current !== 'playing') return;
     soundManager.playHoverboard();
-    setPlayerState((prev) => ({
-      ...prev,
+    playerRef.current = {
+      ...playerRef.current,
       activePowerups: {
-        ...prev.activePowerups,
+        ...playerRef.current.activePowerups,
         hoverboard: true,
-        hoverboardTimer: 10,
+        hoverboardTimer: 15,
       },
-    }));
+    };
+    setPlayerState(playerRef.current);
   }, []);
 
   // Start / Reset Game
   const startGame = () => {
     soundManager.startMusic();
-    setScore(0);
-    setCoinsEarned(0);
-    setDistance(0);
-    setSpeed(BASE_SPEED);
+    scoreRef.current = 0;
+    coinsRef.current = 0;
+    distanceRef.current = 0;
+    speedRef.current = BASE_SPEED;
+    shakeRef.current = 0;
     setIsNewHighScore(false);
-    nextSpawnZ.current = -50;
 
-    setPlayerState({
+    const initialPlayer: PlayerState = {
       ...INITIAL_PLAYER_STATE,
       skin: statsRef.current.selectedSkin,
       board: statsRef.current.selectedBoard,
-    });
+    };
 
-    setObstacles([]);
-    setCollectibles([]);
-    setParticles([]);
+    playerRef.current = initialPlayer;
+    setPlayerState(initialPlayer);
 
-    // Populate initial segment ahead
-    for (let i = 0; i < 4; i++) {
-      generateSegment(nextSpawnZ.current);
-      nextSpawnZ.current -= 35;
+    obstaclesRef.current = [];
+    collectiblesRef.current = [];
+    particlesRef.current = [];
+
+    // Pre-populate obstacles ahead from -40 down to -160
+    for (let z = -40; z >= -160; z -= 35) {
+      spawnSegmentAtZ(z);
     }
 
+    setObstacles([...obstaclesRef.current]);
+    setCollectibles([...collectiblesRef.current]);
+    setParticles([]);
+    setScore(0);
+    setCoinsEarned(0);
+    setDistance(0);
+    setShakeIntensity(0);
+
+    lastTimeRef.current = performance.now();
+    gameStatusRef.current = 'playing';
     setGameStatus('playing');
   };
 
   const pauseGame = () => {
-    if (gameStatus === 'playing') {
+    if (gameStatusRef.current === 'playing') {
       soundManager.stopMusic();
+      gameStatusRef.current = 'paused';
       setGameStatus('paused');
-    } else if (gameStatus === 'paused') {
+    } else if (gameStatusRef.current === 'paused') {
       soundManager.startMusic();
+      lastTimeRef.current = performance.now();
+      gameStatusRef.current = 'playing';
       setGameStatus('playing');
     }
   };
@@ -335,7 +334,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleMoveLeft, handleMoveRight, handleJump, handleRoll, handleActivateHoverboard]);
 
-  // Main Physics & Game Loop
+  // Main 60FPS Physics & Game Loop
   useEffect(() => {
     lastTimeRef.current = performance.now();
 
@@ -351,18 +350,18 @@ export default function App() {
         const multVal = curPlayer.activePowerups.multiplier > 0 ? 2 : 1;
 
         // 1. Ramp Speed & Distance
-        const newSpeed = Math.min(MAX_SPEED, curSpeed + delta * 0.15);
-        setSpeed(newSpeed);
+        const newSpeed = Math.min(MAX_SPEED, curSpeed + delta * 0.2);
+        speedRef.current = newSpeed;
 
         const distDelta = newSpeed * delta;
-        const newDistance = distanceRef.current + distDelta;
-        setDistance(newDistance);
-
-        const newScore = scoreRef.current + distDelta * multVal * 0.5;
-        setScore(newScore);
+        distanceRef.current += distDelta;
+        scoreRef.current += distDelta * multVal * 0.8;
 
         // 2. Camera Shake Fade
-        setShakeIntensity((s) => Math.max(0, s - delta * 2));
+        if (shakeRef.current > 0) {
+          shakeRef.current = Math.max(0, shakeRef.current - delta * 2.5);
+          setShakeIntensity(shakeRef.current);
+        }
 
         // 3. Player Lane Smooth Lerp (x)
         const targetX = LANE_X[curPlayer.lane];
@@ -373,14 +372,14 @@ export default function App() {
         let newVy = curPlayer.velocityY;
 
         if (isJetpack) {
-          // Hover high up during jetpack flight
+          // Jetpack lifts player up to Y=12
           newY = curPlayer.y + (12 - curPlayer.y) * delta * 5;
           newVy = 0;
         } else {
           newVy += GRAVITY * delta;
           newY += newVy * delta;
 
-          // Check landing on train roofs (y = 3.0) or ground (y = 0)
+          // Check landing on train roof (y = 3.0 for train_low, 5.0 for train_tall)
           let groundY = 0;
           for (const obs of obstaclesRef.current) {
             if (
@@ -418,10 +417,10 @@ export default function App() {
         if (updatedPowerups.jetpack > 0) updatedPowerups.jetpack = Math.max(0, updatedPowerups.jetpack - delta);
         if (updatedPowerups.hoverboardTimer > 0) {
           updatedPowerups.hoverboardTimer = Math.max(0, updatedPowerups.hoverboardTimer - delta);
-          if (updatedPowerups.hoverboardTimer === 0) updatedPowerups.hoverboard = false;
+          if (updatedPowerups.hoverboardTimer <= 0) updatedPowerups.hoverboard = false;
         }
 
-        setPlayerState({
+        const nextPlayerState: PlayerState = {
           ...curPlayer,
           currentX: newX,
           y: newY,
@@ -430,7 +429,8 @@ export default function App() {
           isRolling,
           rollTimer: newRollTimer,
           activePowerups: updatedPowerups,
-        });
+        };
+        playerRef.current = nextPlayerState;
 
         // 7. Move Obstacles & Check Collisions
         const updatedObsList: ObstacleData[] = [];
@@ -439,10 +439,10 @@ export default function App() {
         for (const obs of obstaclesRef.current) {
           const obsZ = obs.z + distDelta;
           const isTrain = obs.type.includes('train');
-          const checkZRange = isTrain ? (obsZ >= -7.0 && obsZ <= 7.0) : (obsZ >= -1.4 && obsZ <= 1.4);
+          const checkZRange = isTrain ? (obsZ >= -7.0 && obsZ <= 7.0) : (obsZ >= -1.2 && obsZ <= 1.2);
 
           // Check collision if obstacle overlaps player at Z=0
-          if (checkZRange && obs.lane === curPlayer.lane && !isJetpack) {
+          if (checkZRange && obs.lane === nextPlayerState.lane && !isJetpack) {
             let collided = false;
 
             if (obs.type === 'barrier_low') {
@@ -450,50 +450,47 @@ export default function App() {
             } else if (obs.type === 'barrier_high') {
               if (!isRolling || newY > 0.6) collided = true;
             } else if (obs.type === 'train_low') {
-              // Player crashes if not on top of train
+              // Safe if running on top of train
               if (newY < 2.8) collided = true;
             } else if (obs.type === 'train_tall') {
               if (newY < 4.8) collided = true;
             }
 
             if (collided) {
-              if (curPlayer.activePowerups.hoverboard) {
-                // Hoverboard saves player from crash!
+              if (nextPlayerState.activePowerups.hoverboard) {
+                // Hoverboard absorbs crash!
                 soundManager.playCrash();
+                shakeRef.current = 0.6;
                 setShakeIntensity(0.6);
                 spawnSparkles(newX, newY + 1, 0, '#38bdf8', 12);
 
-                setPlayerState((prev) => ({
-                  ...prev,
-                  activePowerups: {
-                    ...prev.activePowerups,
-                    hoverboard: false,
-                    hoverboardTimer: 0,
-                  },
-                }));
-                // Skip obstacle without ending game
-                continue;
+                nextPlayerState.activePowerups.hoverboard = false;
+                nextPlayerState.activePowerups.hoverboardTimer = 0;
+                playerRef.current = nextPlayerState;
+                continue; // Skip obstacle without gameover
               } else {
                 hasCrashed = true;
               }
             }
           }
 
-          // Keep obstacle if not passed behind camera
+          // Keep obstacle if not passed far behind camera
           if (obsZ < 25) {
             updatedObsList.push({ ...obs, z: obsZ });
           }
         }
-        setObstacles(updatedObsList);
+        obstaclesRef.current = updatedObsList;
 
         // Handle Crash
         if (hasCrashed) {
           soundManager.playCrash();
           soundManager.stopMusic();
+          shakeRef.current = 1.2;
           setShakeIntensity(1.2);
 
           const finalScore = Math.floor(scoreRef.current);
           const finalCoins = coinsRef.current;
+          const finalDist = distanceRef.current;
 
           const isNewRecord = finalScore > statsRef.current.highScore;
           setIsNewHighScore(isNewRecord);
@@ -504,11 +501,15 @@ export default function App() {
           });
 
           setStats(updatedStats);
+          setScore(finalScore);
+          setCoinsEarned(finalCoins);
+          setDistance(finalDist);
+          gameStatusRef.current = 'gameover';
           setGameStatus('gameover');
           return;
         }
 
-        // 8. Move Collectibles & Handle Magnet / Pickups
+        // 8. Move Collectibles & Magnet Attraction
         const updatedColsList: CollectibleData[] = [];
 
         for (const col of collectiblesRef.current) {
@@ -523,10 +524,10 @@ export default function App() {
             const dz = 0 - colZ;
             const distToPlayer = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-            if (distToPlayer < 14) {
-              colX += dx * delta * 12;
-              colY += dy * delta * 12;
-              colZ += dz * delta * 12;
+            if (distToPlayer < 16) {
+              colX += dx * delta * 14;
+              colY += dy * delta * 14;
+              colZ += dz * delta * 14;
             }
           }
 
@@ -538,27 +539,24 @@ export default function App() {
           if (distToPlayer < 1.6 && !col.collected) {
             if (col.type === 'coin') {
               soundManager.playCoin();
-              setCoinsEarned((c) => c + 1);
-              setScore((s) => s + 20);
-              spawnSparkles(colX, colY, colZ, '#fef08a', 4);
+              coinsRef.current += 1;
+              scoreRef.current += 25;
+              spawnSparkles(colX, colY, colZ, '#fef08a', 5);
             } else {
               soundManager.playPowerup();
-              spawnSparkles(colX, colY, colZ, '#ec4899', 8);
+              spawnSparkles(colX, colY, colZ, '#ec4899', 10);
 
               const upgLevels = statsRef.current.upgrades;
               const bonusDuration = (upgLevels[col.type as keyof typeof upgLevels] || 1) * 2;
 
-              setPlayerState((prev) => {
-                const p = { ...prev.activePowerups };
-                if (col.type === 'magnet') p.magnet = 8 + bonusDuration;
-                if (col.type === 'multiplier') p.multiplier = 8 + bonusDuration;
-                if (col.type === 'jetpack') p.jetpack = 8 + bonusDuration;
-                if (col.type === 'hoverboard') {
-                  p.hoverboard = true;
-                  p.hoverboardTimer = 10;
-                }
-                return { ...prev, activePowerups: p };
-              });
+              if (col.type === 'magnet') nextPlayerState.activePowerups.magnet = 8 + bonusDuration;
+              if (col.type === 'multiplier') nextPlayerState.activePowerups.multiplier = 8 + bonusDuration;
+              if (col.type === 'jetpack') nextPlayerState.activePowerups.jetpack = 8 + bonusDuration;
+              if (col.type === 'hoverboard') {
+                nextPlayerState.activePowerups.hoverboard = true;
+                nextPlayerState.activePowerups.hoverboardTimer = 15;
+              }
+              playerRef.current = nextPlayerState;
             }
             continue; // Collected!
           }
@@ -567,26 +565,33 @@ export default function App() {
             updatedColsList.push({ ...col, z: colZ, y: colY });
           }
         }
-        setCollectibles(updatedColsList);
+        collectiblesRef.current = updatedColsList;
 
         // 9. Update Particles
-        setParticles((prev) =>
-          prev
-            .map((p) => ({
-              ...p,
-              x: p.x + p.vx * delta,
-              y: p.y + p.vy * delta,
-              z: p.z + p.vz * delta,
-              life: p.life - delta,
-            }))
-            .filter((p) => p.life > 0)
-        );
+        particlesRef.current = particlesRef.current
+          .map((p) => ({
+            ...p,
+            x: p.x + p.vx * delta,
+            y: p.y + p.vy * delta,
+            z: p.z + p.vz * delta,
+            life: p.life - delta,
+          }))
+          .filter((p) => p.life > 0);
 
-        // 10. Procedurally spawn new track segment ahead
-        if (nextSpawnZ.current + newDistance > -140) {
-          generateSegment(nextSpawnZ.current);
-          nextSpawnZ.current -= 35;
+        // 10. Endless Track Spawner: Check farthest obstacle ahead
+        const minZ = obstaclesRef.current.reduce((min, o) => Math.min(min, o.z), 0);
+        if (minZ > -150) {
+          spawnSegmentAtZ(minZ - 35);
         }
+
+        // 11. Sync React State for 60FPS rendering
+        setPlayerState(nextPlayerState);
+        setObstacles([...obstaclesRef.current]);
+        setCollectibles([...collectiblesRef.current]);
+        setParticles([...particlesRef.current]);
+        setDistance(distanceRef.current);
+        setScore(scoreRef.current);
+        setCoinsEarned(coinsRef.current);
       }
 
       animFrameRef.current = requestAnimationFrame(gameLoop);
@@ -597,7 +602,7 @@ export default function App() {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [generateSegment, spawnSparkles]);
+  }, [spawnSegmentAtZ, spawnSparkles]);
 
   return (
     <div className="game-app-container">
