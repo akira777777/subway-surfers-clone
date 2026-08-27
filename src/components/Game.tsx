@@ -32,3 +32,11 @@
           isJumping = false;
         }
       }
+
+      // Update obstacles (move towards camera)
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obstacle = obstacles[i];
+        
+        // Move obstacle forward to simulate player movement
+        obstacle.position.z += 25 * delta;
+EOF
